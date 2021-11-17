@@ -21,7 +21,6 @@ def find_card(message):
     
     if searched_card_name in magic_cards_data_frame.index:
         bot.reply_to(message, f"Have {searched_card_name} in the collection :)")
-        print()
         bot.send_photo(message.chat.id, magic_cards_data_frame.loc[searched_card_name, "Image URL"].split("https://")[2])
         return
 
