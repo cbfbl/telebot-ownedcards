@@ -1,7 +1,7 @@
-import pandas
 import random
 import telebot
-from constants import API_KEY, magic_data_file, MAXIMUM_NUMBER_OF_SUGGESTED_RESULTS
+from constants import API_KEY, MAXIMUM_NUMBER_OF_SUGGESTED_RESULTS
+from db_controller import find_card_in_db, find_similar_cards
 
 bot = telebot.TeleBot(API_KEY)
 
@@ -11,20 +11,22 @@ def g(message):
 
 @bot.message_handler(commands=["search", "Search"])
 def find_card(message):
-    magic_cards_data_frame = pandas.read_csv(magic_data_file, index_col="Name")
     message_words = message.text.split()
 
     if len(message_words) < 2:
         bot.send_message(message.chat.id, "Please enter a valid format of /search <cardname>")
         return
-    searched_card_name = message_words[1]
     
-    if searched_card_name in magic_cards_data_frame.index:
+    searched_card_name = message_words[1]
+
+    card = find_card_in_db(searched_card_name)
+    if card:
         bot.reply_to(message, f"Have {searched_card_name} in the collection :)")
-        bot.send_photo(message.chat.id, magic_cards_data_frame.loc[searched_card_name, "Image URL"].split("https://")[2])
+        bot.send_photo(message.chat.id, card["Image URL"])
         return
 
-    close_enough_cards = list(magic_cards_data_frame.filter(like=searched_card_name, axis=0).index.values)
+    close_enough_cards = [card["Name"] for card in find_similar_cards(searched_card_name)]
+
     if len(close_enough_cards):
         number_of_suggested_results = min(MAXIMUM_NUMBER_OF_SUGGESTED_RESULTS, len(close_enough_cards))
         bot.reply_to(message, f"Did not find exact match, showing {number_of_suggested_results} "
@@ -32,6 +34,5 @@ def find_card(message):
         return
     
     bot.reply_to(message, "Sorry could not find any similar cards in the collection :(")
-
 
 bot.polling()
