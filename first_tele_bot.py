@@ -1,9 +1,10 @@
 import random
 import telebot
 from constants import API_KEY, MAXIMUM_NUMBER_OF_SUGGESTED_RESULTS
-from db_controller import find_card_in_db, find_similar_cards
+from db_controller import CardsMongoDB
 
 bot = telebot.TeleBot(API_KEY)
+cards_db = CardsMongoDB()
 
 @bot.message_handler(commands=["Psol"])
 def g(message):
@@ -19,13 +20,13 @@ def find_card(message):
     
     searched_card_name = message_words[1]
 
-    card = find_card_in_db(searched_card_name)
+    card = cards_db.find_card_in_db(searched_card_name)
     if card:
         bot.reply_to(message, f"Have {searched_card_name} in the collection :)")
         bot.send_photo(message.chat.id, card["Image URL"])
         return
 
-    close_enough_cards = [card["Name"] for card in find_similar_cards(searched_card_name)]
+    close_enough_cards = cards_db.find_similar_cards_names(searched_card_name)
 
     if len(close_enough_cards):
         number_of_suggested_results = min(MAXIMUM_NUMBER_OF_SUGGESTED_RESULTS, len(close_enough_cards))
