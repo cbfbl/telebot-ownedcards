@@ -1,2 +1,3 @@
+flask
 pyTelegramBotAPI
-pymongo
+pymongo[srv]

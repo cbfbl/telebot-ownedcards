@@ -1,10 +1,16 @@
+import os
 import random
+from flask import (
+    Flask,
+    request,
+)
 import telebot
 from constants import API_KEY, MAXIMUM_NUMBER_OF_SUGGESTED_RESULTS
 from db_controller import CardsMongoDB
 
 bot = telebot.TeleBot(API_KEY)
 cards_db = CardsMongoDB()
+server = Flask(__name__)
 
 @bot.message_handler(commands=["Psol"])
 def g(message):
@@ -36,4 +42,21 @@ def find_card(message):
     
     bot.reply_to(message, "Sorry could not find any similar cards in the collection :(")
 
-bot.polling()
+
+@server.route('/' + API_KEY, methods=['POST'])
+def getMessage():
+    json_string = request.get_data().decode('utf-8')
+    update = telebot.types.Update.de_json(json_string)
+    bot.process_new_updates([update])
+    return "!", 200
+
+
+@server.route("/")
+def webhook():
+    bot.remove_webhook()
+    bot.set_webhook(url='https://telecardbot.herokuapp.com/' + API_KEY)
+    return "!", 200
+
+
+if __name__ == "__main__":
+    server.run(host="0.0.0.0", port=int(os.environ.get('PORT', 5000)))

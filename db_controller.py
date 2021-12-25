@@ -1,4 +1,4 @@
-import pandas
+# import pandas
 import pymongo
 from constants import mongodb_password, magic_data_file
 
@@ -9,12 +9,12 @@ class CardsMongoDB(object):
         self.cards_collection = db.get_collection("magicCards")
         self.cards_collection.create_index("Name")
 
-    def _populate_db(collection):
-        magic_cards_data_frame = pandas.read_csv(magic_data_file)
-        rows_list = [row.to_dict() for _, row in magic_cards_data_frame.iterrows()]
-        for row_dict in rows_list:
-            row_dict["Image URL"] = row_dict["Image URL"].split("https://")[2]
-        collection.insert_many(rows_list)
+    # def _populate_db(collection):
+    #     magic_cards_data_frame = pandas.read_csv(magic_data_file)
+    #     rows_list = [row.to_dict() for _, row in magic_cards_data_frame.iterrows()]
+    #     for row_dict in rows_list:
+    #         row_dict["Image URL"] = row_dict["Image URL"].split("https://")[2]
+    #     collection.insert_many(rows_list)
 
 
     def find_card_in_db(self, card_name):
