@@ -24,7 +24,7 @@ def find_card(message):
         bot.send_message(message.chat.id, "Please enter a valid format of /search <cardname>")
         return
     
-    searched_card_name = message_words[1]
+    searched_card_name = ' '.join(message_words[1:])
 
     card = cards_db.find_card_in_db(searched_card_name)
     if card:
@@ -34,7 +34,7 @@ def find_card(message):
 
     close_enough_cards = cards_db.find_similar_cards_names(searched_card_name)
 
-    if len(close_enough_cards):
+    if close_enough_cards:
         number_of_suggested_results = min(MAXIMUM_NUMBER_OF_SUGGESTED_RESULTS, len(close_enough_cards))
         bot.reply_to(message, f"Did not find exact match, showing {number_of_suggested_results} "
                      f"results with simillar name:\n{random.sample(close_enough_cards, k=number_of_suggested_results)}")

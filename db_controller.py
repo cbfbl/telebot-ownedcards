@@ -2,6 +2,14 @@
 import pymongo
 from constants import mongodb_password, magic_data_file
 
+def first_letter_to_capital(some_str):
+    
+    str_list = list(some_str)
+    if str_list and str_list[0].isalpha():
+        str_list[0] = str_list[0].upper()
+    
+    return ''.join(str_list)
+
 class CardsMongoDB(object):
     def __init__(self):
         client = pymongo.MongoClient(f"mongodb+srv://telebot:{mongodb_password}@cluster0.lqrbk.mongodb.net/myFirstDatabase?retryWrites=true&w=majority")
@@ -18,11 +26,11 @@ class CardsMongoDB(object):
 
 
     def find_card_in_db(self, card_name):
-    
+        card_name = first_letter_to_capital(card_name)
         return self.cards_collection.find_one({"Name": card_name})
 
     def find_similar_cards_names(self, card_name):
-    
+        card_name = first_letter_to_capital(card_name)
         return [row["Name"] for row in self.cards_collection.find(projection={"Name": True, "_id": False}) if card_name in row["Name"]]
 
 # print(find_card_in_db("Wilt"))
